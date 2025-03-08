@@ -98,7 +98,24 @@ int main(void)
         {
             // Map edition with mouse
             // NOTE: We must translate mouse coordinates to maze image coordinates
-            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+            if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && IsKeyDown(KEY_LEFT_CONTROL))
+            {
+                Vector2 mousePos = GetMousePosition();
+
+                if ((mousePos.x >= position.x) && (mousePos.y >= position.y))
+                {
+                    Point mapCoord = {
+                        (int)((mousePos.x - position.x) / MAZE_SCALE),
+                        (int)((mousePos.y - position.y) / MAZE_SCALE),
+                    };
+
+                    ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, GREEN);
+
+                    UnloadTexture(texMaze);
+                    texMaze = LoadTextureFromImage(imMaze);
+                }
+            }
+            else if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
             {
                 Vector2 mousePos = GetMousePosition();
 
@@ -132,14 +149,31 @@ int main(void)
                     texMaze = LoadTextureFromImage(imMaze);
                 }
             }
+            else if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE))
+            {
+                Vector2 mousePos = GetMousePosition();
+
+                if ((mousePos.x >= position.x) && (mousePos.y >= position.y))
+                {
+                    Point mapCoord = {
+                        (int)((mousePos.x - position.x) / MAZE_SCALE),
+                        (int)((mousePos.y - position.y) / MAZE_SCALE),
+                    };
+
+                    ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, RED);
+
+                    UnloadTexture(texMaze);
+                    texMaze = LoadTextureFromImage(imMaze);
+                }
+            }
         }
         else  // Game mode
         {
             // Player movement
-            if (IsKeyDown(KEY_RIGHT)) player.x += 2;
-            else if (IsKeyDown(KEY_LEFT)) player.x -= 2;
-            else if (IsKeyDown(KEY_DOWN)) player.y += 2;
-            else if (IsKeyDown(KEY_UP)) player.y -= 2;
+            if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) player.x += 2;
+            else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) player.x -= 2;
+            else if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) player.y += 2;
+            else if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) player.y -= 2;
 
             // Update camera target position with new player position
             camera.target = (Vector2){ player.x + 2, player.y + 2 };
