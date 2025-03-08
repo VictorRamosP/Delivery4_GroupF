@@ -57,7 +57,8 @@ int main(void)
     };
 
     // Load one texture to apply to maze walls and floor
-    Texture2D texture = LoadTexture("resources/maze_atlas04.png");
+    Texture2D texture = LoadTexture("../../../resources/maze_atlas04.png");
+
 
     // Define player position and size
     Rectangle player = { position.x + 1 * MAZE_SCALE + 2, position.y + 1 * MAZE_SCALE + 2, 4, 4 };
@@ -190,7 +191,7 @@ int main(void)
                     }
                 }
             }
-
+            
             // Draw player
             DrawRectangleRec(player, RED);
 
