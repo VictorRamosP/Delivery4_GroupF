@@ -58,9 +58,13 @@ int main(void)
         screenHeight / 2 - imMaze.height * MAZE_SCALE / 2
     };
 
-    // Load one texture to apply to maze walls and floor
-    Texture2D texture = LoadTexture("../../../resources/maze_atlas04.png");
 
+    // Load one texture to apply to maze walls and floor
+   // Texture2D texture = LoadTexture("../../../resources/maze_atlas04.png");
+    int textureIndex = GetRandomValue(1, 4);
+    char texturePath[50];
+    sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
+    Texture2D texture = LoadTexture(texturePath);
 
     // Define player position and size
     Rectangle player = { position.x + 1 * MAZE_SCALE + 2, position.y + 1 * MAZE_SCALE + 2, 4, 4 };
@@ -91,6 +95,10 @@ int main(void)
             UnloadTexture(texMaze);
             imMaze = GenImageMaze(MAZE_WIDTH, MAZE_HEIGHT, 4, 4, 0.5f);
             texMaze = LoadTextureFromImage(imMaze);
+
+            textureIndex = GetRandomValue(1, 4);
+            sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
+            texture = LoadTexture(texturePath);
         }
 
         // Change mode: 0-Editor, 1-Game
@@ -278,7 +286,7 @@ bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset)
             {
                 if (ColorIsEqual(GetImageColor(imMaze, mapX, mapY), WHITE))
                 {
-                    return true; // Colisión detectada
+                    return true; // Collision detected
                 }
             }
         }
