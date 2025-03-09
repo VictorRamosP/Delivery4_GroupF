@@ -28,6 +28,8 @@ typedef struct Point {
 // Declare function to be used in main(), definition is placed after main()
 static Image GenImageMaze(int width, int height, int spacingRows, int spacingCols, float pointChance);
 
+bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset);
+
 //----------------------------------------------------------------------------------
 // Main entry point
 //----------------------------------------------------------------------------------
@@ -169,12 +171,18 @@ int main(void)
         }
         else  // Game mode
         {
+
+            Rectangle oldPlayer = player; // Position player before collision
             // Player movement
             if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) player.x += 2;
             else if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) player.x -= 2;
             else if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) player.y += 2;
             else if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) player.y -= 2;
 
+            if (CheckCollisionWithMaze(imMaze, player, position))
+            {
+                player = oldPlayer; // Revertimos el movimiento si hay colisión
+            }
             // Update camera target position with new player position
             camera.target = (Vector2){ player.x + 2, player.y + 2 };
         }
@@ -257,7 +265,26 @@ int main(void)
 
     return 0;
 }
+bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset)
+{
+    for (int y = (int)player.y; y < (int)(player.y + player.height); y++)
+    {
+        for (int x = (int)player.x; x < (int)(player.x + player.width); x++)
+        {
+            int mapX = (x - (int)offset.x) / MAZE_SCALE;
+            int mapY = (y - (int)offset.y) / MAZE_SCALE;
 
+            if (mapX >= 0 && mapX < imMaze.width && mapY >= 0 && mapY < imMaze.height)
+            {
+                if (ColorIsEqual(GetImageColor(imMaze, mapX, mapY), WHITE))
+                {
+                    return true; // Colisión detectada
+                }
+            }
+        }
+    }
+    return false;
+}
 // Generate procedural maze image, using grid-based algorithm
 // NOTE: Color scheme used: WHITE = Wall, BLACK = Walkable
 Image GenImageMaze(int width, int height, int spacingRows, int spacingCols, float pointChance)
