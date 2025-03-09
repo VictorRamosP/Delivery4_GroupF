@@ -60,8 +60,8 @@ int main(void)
 
 
     // Load one texture to apply to maze walls and floor
-   // Texture2D texture = LoadTexture("../../../resources/maze_atlas04.png");
-    int textureIndex = GetRandomValue(1, 4);
+    //Texture2D texture = LoadTexture("../../../resources/maze_atlas04.png");
+    int textureIndex = 4;
     char texturePath[50];
     sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
     Texture2D texture = LoadTexture(texturePath);
@@ -96,11 +96,31 @@ int main(void)
             imMaze = GenImageMaze(MAZE_WIDTH, MAZE_HEIGHT, 4, 4, 0.5f);
             texMaze = LoadTextureFromImage(imMaze);
 
-            textureIndex = GetRandomValue(1, 4);
+            
+        }
+        if (IsKeyPressed(KEY_ONE))
+        {
+            textureIndex = 1;
+            sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
+            texture = LoadTexture(texturePath);
+        }else if (IsKeyPressed(KEY_TWO))
+        {
+            textureIndex = 2;
             sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
             texture = LoadTexture(texturePath);
         }
-
+        else if (IsKeyPressed(KEY_THREE))
+        {
+            textureIndex = 3;
+            sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
+            texture = LoadTexture(texturePath);
+        }
+        else if (IsKeyPressed(KEY_FOUR))
+        {
+            textureIndex = 4;
+            sprintf(texturePath, "../../../resources/maze_atlas0%d.png", textureIndex);
+            texture = LoadTexture(texturePath);
+        }
         // Change mode: 0-Editor, 1-Game
         if (IsKeyPressed(KEY_SPACE)) mode = !mode;
 
