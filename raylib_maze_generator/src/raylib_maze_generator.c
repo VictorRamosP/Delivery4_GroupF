@@ -25,10 +25,20 @@ typedef struct Point {
     int y;
 } Point;
 
+typedef struct RedPoint {
+    int x;
+    int y;
+    bool active;
+} RedPoint;
+
 // Declare function to be used in main(), definition is placed after main()
 static Image GenImageMaze(int width, int height, int spacingRows, int spacingCols, float pointChance);
 
 bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset);
+
+int playerScore = 0;
+RedPoint redPoints[64];
+int pointsCounter = 0;
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -43,7 +53,8 @@ int main(void)
     InitWindow(screenWidth, screenHeight, "raylib maze generator");
 
     // Define a random seed for maze generation
-    int seed = 37867;
+    srand(time(NULL));
+    int seed = rand();
     SetRandomSeed(seed);
 
     // Generate maze image using provided function
@@ -90,7 +101,7 @@ int main(void)
         if (IsKeyPressed(KEY_R))
         {
             // Set a new seed and re-generate maze
-            seed += 11;
+            seed = rand();
             UnloadImage(imMaze);
             UnloadTexture(texMaze);
             imMaze = GenImageMaze(MAZE_WIDTH, MAZE_HEIGHT, 4, 4, 0.5f);
@@ -190,10 +201,31 @@ int main(void)
                         (int)((mousePos.y - position.y) / MAZE_SCALE),
                     };
 
-                    ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, RED);
+                    if (pointsCounter <= 64) 
+                    {
+                        bool redPointAlreadyExists = false;
+                        for (int i = 0; i < 64; i++)
+                        {
+                            if (redPoints[i].x == mapCoord.x && redPoints[i].y == mapCoord.y) 
+                            {
+                                redPointAlreadyExists = true;
+                            }
+                        }
+                        if (!redPointAlreadyExists) 
+                        {
+                            RedPoint tempRed = { mapCoord.x, mapCoord.y, true };
+                            redPoints[pointsCounter] = tempRed;
+                            ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, RED);
 
-                    UnloadTexture(texMaze);
-                    texMaze = LoadTextureFromImage(imMaze);
+                            UnloadTexture(texMaze);
+                            texMaze = LoadTextureFromImage(imMaze);
+                            pointsCounter++;
+                        }
+                    }
+                    else 
+                    {
+                        DrawText("POINT LIMIT REACHED", screenWidth/2-120, 10, 20, RED);
+                    }
                 }
             }
         }
@@ -273,8 +305,10 @@ int main(void)
 
         DrawText(TextFormat("SEED: %i", seed), 10, 56, 10, YELLOW);
 
-        DrawText("[SPACE] TOGGLE MODE: EDITOR/GAME", 10, GetScreenHeight() - 20, 10, WHITE);
+        DrawText(TextFormat("SCORE: %i", playerScore), 10, 76, 10, GREEN);
 
+        DrawText("[SPACE] TOGGLE MODE: EDITOR/GAME", 10, GetScreenHeight() - 20, 10, WHITE);
+        
         DrawFPS(10, 10);
 
         EndDrawing();
@@ -307,6 +341,16 @@ bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset)
                 if (ColorIsEqual(GetImageColor(imMaze, mapX, mapY), WHITE))
                 {
                     return true; // Collision detected
+                }
+                else if (ColorIsEqual(GetImageColor(imMaze, mapX, mapY), RED))
+                {
+                    for (int i = 0; i < 64; i++)
+                    {
+                        if (mapX == redPoints[i].x && mapY == redPoints[i].y && redPoints[i].active) {
+                            redPoints[i].active = false;
+                            playerScore++;
+                        }
+                    }
                 }
             }
         }
