@@ -110,8 +110,14 @@ int main(void)
             UnloadTexture(texMaze);
             imMaze = GenImageMaze(MAZE_WIDTH, MAZE_HEIGHT, 4, 4, 0.5f);
             texMaze = LoadTextureFromImage(imMaze);
-
-            
+            pointsCounter = 0;
+            for (int i = 0; i < 64; i++)
+            {
+                redPoints[i].x = -1;
+                redPoints[i].y = -1;
+                redPoints[i].active = false;
+            }
+            playerScore = 0;
         }
         if (IsKeyPressed(KEY_ONE))
         {
@@ -228,7 +234,7 @@ int main(void)
                         (int)((mousePos.y - position.y) / MAZE_SCALE),
                     };
 
-                    if (pointsCounter <= 64) 
+                    if (pointsCounter < 64) 
                     {
                         bool redPointAlreadyExists = false;
                         for (int i = 0; i < 64; i++)
@@ -236,6 +242,7 @@ int main(void)
                             if (redPoints[i].x == mapCoord.x && redPoints[i].y == mapCoord.y) 
                             {
                                 redPointAlreadyExists = true;
+                                redPoints[i].active = true;
                             }
                         }
                         if (!redPointAlreadyExists) 
@@ -342,8 +349,14 @@ int main(void)
             {
                 DrawRectangleRec((Rectangle) { position.x + endPoint.x * MAZE_SCALE, position.y + endPoint.y * MAZE_SCALE, MAZE_SCALE, MAZE_SCALE }, YELLOW);
             }
-
-            
+            //Draw Score Points
+            for (int i = 0; i < 64; i++)
+            {
+                if (redPoints[i].active)
+                {
+                    DrawRectangleRec((Rectangle) { position.x + redPoints[i].x * MAZE_SCALE, position.y + redPoints[i].y * MAZE_SCALE, MAZE_SCALE, MAZE_SCALE }, DARKGREEN);
+                }
+            }
             // Draw player
             DrawRectangleRec(player, RED);
 
