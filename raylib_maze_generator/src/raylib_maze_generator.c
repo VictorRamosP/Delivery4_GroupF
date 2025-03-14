@@ -27,7 +27,7 @@ typedef struct Point {
 
 typedef struct RedPoint {
     int x;
-    int y;
+    int y;  
     bool active;
 } RedPoint;
 
@@ -39,6 +39,10 @@ bool CheckCollisionWithMaze(Image imMaze, Rectangle player, Vector2 offset);
 int playerScore = 0;
 RedPoint redPoints[64];
 int pointsCounter = 0;
+
+Point startPoint = { -1, -1 }; // Indica que aún no se ha definido
+Point endPoint = { -1, -1 };   // Indica que aún no se ha definido
+
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -150,6 +154,29 @@ int main(void)
                         (int)((mousePos.y - position.y) / MAZE_SCALE),
                     };
 
+                    endPoint = mapCoord;
+
+                    ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, YELLOW);
+
+                    UnloadTexture(texMaze);
+                    texMaze = LoadTextureFromImage(imMaze);
+                }
+            }
+            if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && IsKeyDown(KEY_LEFT_CONTROL))
+            {
+                Vector2 mousePos = GetMousePosition();
+
+                if ((mousePos.x >= position.x) && (mousePos.y >= position.y))
+                {
+                    Point mapCoord = {
+                        (int)((mousePos.x - position.x) / MAZE_SCALE),
+                        (int)((mousePos.y - position.y) / MAZE_SCALE),
+                    };
+
+                    startPoint = mapCoord;
+                    player.x = position.x + startPoint.x * MAZE_SCALE + 2;
+                    player.y = position.y + startPoint.y * MAZE_SCALE + 2;
+
                     ImageDrawPixel(&imMaze, mapCoord.x, mapCoord.y, GREEN);
 
                     UnloadTexture(texMaze);
@@ -243,8 +270,19 @@ int main(void)
             {
                 player = oldPlayer; // Revertimos el movimiento si hay colisión
             }
+            //Player collision with End point
+            if (endPoint.x != -1 && endPoint.y != -1)
+            {
+                if ((int)((player.x - position.x) / MAZE_SCALE) == endPoint.x &&
+                    (int)((player.y - position.y) / MAZE_SCALE) == endPoint.y)
+                {
+                    return;
+                }
+            }
+
             // Update camera target position with new player position
             camera.target = (Vector2){ player.x + 2, player.y + 2 };
+          
         }
         //----------------------------------------------------------------------------------
 
@@ -293,6 +331,18 @@ int main(void)
                     }
                 }
             }
+
+            //Draw Start&End Points
+            if (startPoint.x != -1 && startPoint.y != -1)
+            {
+                DrawRectangleRec((Rectangle) { position.x + startPoint.x * MAZE_SCALE, position.y + startPoint.y * MAZE_SCALE, MAZE_SCALE, MAZE_SCALE }, GREEN);
+            }
+
+            if (endPoint.x != -1 && endPoint.y != -1)
+            {
+                DrawRectangleRec((Rectangle) { position.x + endPoint.x * MAZE_SCALE, position.y + endPoint.y * MAZE_SCALE, MAZE_SCALE, MAZE_SCALE }, YELLOW);
+            }
+
             
             // Draw player
             DrawRectangleRec(player, RED);
